@@ -1,9 +1,11 @@
-# C++ Crypto Paper-Trading Engine
+# C++ Quantitative Cryptocurrency Trading System
 
-A C++20 learning project for deterministic market replay, pluggable strategies, risk controls, simulated execution, and portfolio accounting. It is paper trading only: no exchange connection, credentials, or real funds.
+A C++20 quantitative trading system for deterministic market replay, strategy research, backtesting, paper trading, risk controls, execution simulation, and portfolio accounting. The execution layer is adapter-based so a separately reviewed live-spot venue can be added without changing strategy or risk code.
+
+The repository currently contains no exchange connection, credential handling, or real-money execution. Live execution is intentionally disabled by default and remains a future integration step.
 
 ```text
-market replay → strategy::IStrategy → engine::RiskEngine → simulated exchange → portfolio
+market data → strategy::IStrategy → engine::RiskEngine → engine::IExecutionVenue → portfolio
 ```
 
 The included one-tick mean-reversion strategy only exercises order and risk paths. It does not claim profitability and must not be used for investment decisions.
@@ -29,5 +31,6 @@ The loader requires a header with `timestamp_ms`, `symbol`, and `mid_price` colu
 
 1. Deterministic replay, simulated fills, risk limits — implemented.
 2. Validated CSV loader and basic performance metrics — implemented.
-3. Order lifecycle and limit-order-book simulation.
-4. Optional public-market data adapter, still paper-trading only.
+3. Adapter-based execution boundary, order statuses, and disabled-by-default execution gate — implemented.
+4. Order lifecycle and deterministic limit-order-book simulation.
+5. Optional public-market data and separately reviewed live-spot venue adapters.

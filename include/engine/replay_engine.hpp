@@ -6,8 +6,8 @@
 #include <vector>
 
 #include "engine/performance_reporter.hpp"
+#include "engine/execution_venue.hpp"
 #include "engine/risk_engine.hpp"
-#include "engine/simulated_exchange.hpp"
 #include "strategy/strategy.hpp"
 
 namespace engine {
@@ -18,7 +18,7 @@ struct ReplayResult { std::vector<ReplayStep> steps; PerformanceMetrics performa
 class ReplayEngine final {
 public:
     [[nodiscard]] static ReplayResult run(const std::vector<domain::MarketTick>& ticks, strategy::IStrategy& strategy,
-                                          Portfolio& portfolio, const RiskEngine& risk, const SimulatedExchange& exchange) {
+                                          Portfolio& portfolio, const RiskEngine& risk, const IExecutionVenue& venue) {
         if (ticks.empty()) throw std::invalid_argument("market replay requires at least one tick");
         validate(ticks);
         PerformanceReporter reporter(portfolio.cash_usd());
@@ -30,8 +30,11 @@ public:
             ReplayAction action = ReplayAction::hold;
             if (const auto proposal = strategy.on_tick(tick, portfolio); proposal) {
                 if (const auto approved = risk.approve(*proposal, tick, portfolio); approved) {
-                    portfolio.apply(exchange.execute(*approved, tick));
-                    action = approved->side == domain::Side::buy ? ReplayAction::buy : ReplayAction::sell;
+                    const auto report = venue.execute(*approved, tick);
+                    if (report.status == domain::OrderStatus::filled && report.fill) {
+                        portfolio.apply(*report.fill);
+                        action = approved->side == domain::Side::buy ? ReplayAction::buy : ReplayAction::sell;
+                    } else action = ReplayAction::risk_reject;
                 } else action = ReplayAction::risk_reject;
             }
             double equity = portfolio.cash_usd();

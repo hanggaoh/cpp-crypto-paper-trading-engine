@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "engine/replay_engine.hpp"
+#include "engine/simulated_exchange.hpp"
 
 namespace {
 class BuyOnceStrategy final : public strategy::IStrategy {
