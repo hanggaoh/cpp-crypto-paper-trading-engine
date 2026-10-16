@@ -1,3 +1,4 @@
+#include <chrono>
 #include <iomanip>
 #include <iostream>
 #include <vector>
@@ -8,8 +9,12 @@
 
 int main() {
     const std::vector<domain::MarketTick> replay{
-        {{0}, "BTC-USD", 100000.0}, {{1000}, "BTC-USD", 99200.0}, {{2000}, "BTC-USD", 99600.0},
-        {{3000}, "BTC-USD", 100250.0}, {{4000}, "BTC-USD", 100900.0}, {{5000}, "BTC-USD", 100100.0},
+        {std::chrono::milliseconds{0}, "BTC-USD", 100000.0},
+        {std::chrono::milliseconds{1000}, "BTC-USD", 99200.0},
+        {std::chrono::milliseconds{2000}, "BTC-USD", 99600.0},
+        {std::chrono::milliseconds{3000}, "BTC-USD", 100250.0},
+        {std::chrono::milliseconds{4000}, "BTC-USD", 100900.0},
+        {std::chrono::milliseconds{5000}, "BTC-USD", 100100.0},
     };
     engine::Portfolio portfolio(10000.0);
     engine::RiskEngine risk({.maximum_position_units = 0.01, .maximum_order_notional_usd = 1500.0});
